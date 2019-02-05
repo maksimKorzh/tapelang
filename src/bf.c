@@ -63,6 +63,7 @@
 
 char memory[MEMORY_SIZE];
 char source[SOURCE_SIZE];
+
 char *src = source;
 char *mem = memory;
 int loop;
@@ -73,10 +74,53 @@ void execute()
     {
         switch(*src)
         {
-            case '#':
+            case '?':   // print debug info
                 printf("\n cell #%d: %d\n", mem - memory, *mem);
                 break;
-        
+
+            case '$':   // set current cell to ascii value of next char
+                *src++;
+                while((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z')) *mem++ = *src++;
+                break;
+
+            case '#':   // set current cell id to value of following integer
+            {
+                *src++;
+                int num = atoi(src);
+
+                if(num < 0 || num > 65535)
+                {
+                    printf("\n ERROR: cell #%d is out of ID bounds!", num);
+                    printf("\n        cell #id bounds are from '0' to '65535'\n");
+                    break;
+                }
+                
+                mem = memory + num;
+                break;
+            }
+            
+            case '@':
+                *src++;
+                int num = atoi(src);
+
+                if(num < -128 || num > 127)
+                {
+                    printf("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, num);
+                    printf("\n        cell value bounds are from '-128' to '127'\n");
+                    break;
+                }
+
+                *mem = atoi(src);
+                break;
+
+            case ':':
+                puts(mem);
+                break;
+
+            /*case ';':
+                gets();
+                break;*/
+
             case '>':
 
                 if((mem - memory) == 65535)
@@ -160,7 +204,8 @@ void execute()
                 *src--;
                 break;
         }
-        
+
+        //putchar(*src); getchar();
         *src++;
     }
 }
@@ -179,7 +224,7 @@ int main(int argc,char *argv[])
         
         if(errno)
         {
-            printf("File '%s' doesn't exist!\n", argv[1]);
+            printf("\n   ERROR: file '%s' doesn't exist!\n", argv[1]);
             return 0;
         }
         

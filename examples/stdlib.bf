@@ -1,0 +1,12 @@
+brainfuck standard library :)
+
+++++++++++
+
+[
+    >
+    [
+        
+    ]
+    <
+    -
+]
