@@ -53,94 +53,139 @@
 ;---------------------------------------------------------------------------------;
 \*********************************************************************************/
 
-#include <stdio.h>                        /* C standard library for handling I/O */
-#include <errno.h>                /* C standard library for handling error codes */
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
 
-#define VERSION "v0.0.1"                              /* current program version */
-#define MEMORY_SIZE 30000                            /* "infinite tape" constant */
-#define SOURCE_SIZE 10000                                /* max source file size */
+#define VERSION "v0.0.2"
+#define MEMORY_SIZE 65536
+#define SOURCE_SIZE 25600
 
-int memory[MEMORY_SIZE];                             /* available program memory */
-char source[SOURCE_SIZE];                                  /* source file buffer */
-char *src = source;                                       /* instruction pointer */
-int *mem = memory;                                               /* data pointer */
-int loop;                                                /* nested loops counter */
+char memory[MEMORY_SIZE];
+char source[SOURCE_SIZE];
+char *src = source;
+char *mem = memory;
+int loop;
 
-void execute()                             /* brainfuck instructions interpreter */
+void execute()
 {
     while(*src)
     {
         switch(*src)
         {
-            case '>': *mem++;  break;                /* increment memory pointer */
-            case '<': *mem--;  break;                /* decrement memory pointer */
-            case '+': ++*mem;  break;             /* increments memory reference */
-            case '-': --*mem;  break;             /* decrements memory reference */
-            case '.': putc(*mem, stdout); break;        /* output char to screen */
-            case ',': *mem = getc(stdin); break;       /* get char from keyboard */
-                
-            case '[':                                              /* loop start */
+            case '#':
+                printf("\n cell #%d: %d\n", mem - memory, *mem);
+                break;
+        
+            case '>':
 
-                if(!*mem)                     /* if cell at data pointer is zero */
+                if((mem - memory) == 65535)
                 {
-                    loop = 1;            /* loop variable holds a number of '[]' */
-                    while(loop)                    /* do until find matching ']' */
-                    {
-                        *src++;                 /* increment instruction pointer */
+                    printf("\n WARNING: cell #%d is out of right bound!", mem - memory + 1);
+                    mem = memory - 1;
+                    printf("\n          setting cell #id to '%d'\n", mem - memory + 1);
+                }
 
-                        if(*src == '[') loop++;   /* inc loop on '[' instruction */
-                        if(*src == ']') loop--;   /* dec loop on ']' instruction */
+                *mem++;
+                break;
+
+            case '<':
+
+                if(!(mem - memory))
+                {
+                    printf("\n WARNING: cell #%d is out of left bound!", mem - memory - 1);
+                    mem = memory + MEMORY_SIZE;
+                    printf("\n          setting cell #id to '%d'\n", mem - memory - 1);
+                }
+                
+                *mem--;
+                break;
+
+            case '+':
+
+                if(*mem == 127)
+                {
+                    printf("\n WARNING: cell #%d: value '%d' is out of positive bound!", mem - memory, *mem + 1);
+                    *mem = -128;
+                    printf("\n          setting cell #%d value to '%d'\n", mem - memory, *mem);
+                    break;
+                }
+
+                ++*mem;
+                break;
+                
+            case '-':
+
+                if(*mem == -128)
+                {
+                    printf("\n WARNING: cell #%d: value '%d' is out of negative bound!", mem - memory, *mem - 1);
+                    *mem = 127;
+                    printf("\n          setting cell #%d value to '%d'\n", mem - memory, *mem);
+                    break;
+                }
+
+                --*mem;
+                break;
+                
+            case '.': putc(*mem, stdout); break;
+            case ',': *mem = getc(stdin); break;
+                
+            case '[':
+
+                if(!*mem)
+                {
+                    loop = 1;
+                    while(loop)
+                    {
+                        *src++;
+
+                        if(*src == '[') loop++;
+                        if(*src == ']') loop--;
                     }
                 }
 
                 break;
 
-            case ']':                                                /* loor end */
+            case ']':
 
-                loop = 1;                /* loop variable holds a number of '[]' */
-                while(loop)                        /* do until find matching '[' */
+                loop = 1;
+                while(loop)
                 {
-                    *src--;                     /* decrement instruction pointer */
+                    *src--;
                    
-                    if(*src == '[') loop--;       /* dec loop on '[' instruction */
-                    if(*src == ']') loop++;       /* inc loop on ']' instruction */
+                    if(*src == '[') loop--;
+                    if(*src == ']') loop++;
                 }
 
-                *src--;                         /* decrement instruction pointer */
+                *src--;
                 break;
         }
         
-        *src++;                                 /* increment instruction pointer */
+        *src++;
     }
 }
 
 int main(int argc,char *argv[])
 {
-    if(argc == 1)        /* if no arguments given go into intaractive shell mode */
+    if(argc == 1)
     {
-        printf("\n     Brainfuck interpreter %s by Maksim Korzh\n\n", VERSION);
-        printf("  1. Type or paste in brainfuck source code\n");
-        printf("  2. Use Ctrl-D for code execution(linux)\n");
-        printf("  3. Use ./brainfuck [filename] to execute source file\n");
-        printf("\n              Happy brainfucking!\n\n");
-        
-        fread(source, 1, SOURCE_SIZE - 1, stdin);      /* read source from stdin */
-        execute();                           /* on linux press CTRL-D to execute */
+        printf("\n   FATAL ERROR: no input file!\n USAGE EXAMPLE: bf filename.bf\n\n");
+        exit(1);
     }
 
-    else if(argc == 2)                        /* otherwise read source from file */
+    else if(argc == 2)
     {
-        FILE *file = fopen(argv[1], "r");                    /* open file stream */
-
-        if(errno)                /* print an error message if file doesn't exist */
+        FILE *file = fopen(argv[1], "r");
+        
+        if(errno)
         {
             printf("File '%s' doesn't exist!\n", argv[1]);
             return 0;
         }
         
-        fread(source, 1, SOURCE_SIZE, file);            /* read source from file */
-        fclose(file);                                       /* close file stream */
-        execute();                                  /* execute brainfuck program */
+        fread(source, 1, SOURCE_SIZE, file);
+        fclose(file);
+        execute();
     }
     
     return 0;
