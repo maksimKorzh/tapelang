@@ -70,20 +70,48 @@ char *src = source;
 char *mem = memory;
 int loop;
 
+int src_flag;
+char *source_ptr;
+
 void execute()
 {
     while(*src)
     {
         switch(*src)
         {
+            case '!':   // execute brainfuck source from memory
+            {
+                if(!src_flag)
+                {
+                    source_ptr = src;
+                    src = mem;
+                    //printw("\nwe are now in memory at '%s'\n", mem);
+                }
+
+                else
+                {
+                    src = source_ptr;
+                    //printw("we are now at source at '%s'", src);
+                }
+
+                src_flag ^= 1;
+                break;
+            }
+        
+            case '&':   // escape character
+                *src++;
+                break;
+
             case '?':   // print debug info
                 printw("\n cell #%d: %d\n", mem - memory, *mem);
                 break;
 
             case '$':   // set current cell to ascii value of next char
                 *src++;
-                while((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z'))
+                while((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z') || *src == ' ' || *src == '&')
                 {
+                    if(*src == '&') *src++;
+                    
                     if((mem - memory + 1) > 65535)
                     {
                         printw("\n ERROR: string is out of bounds!\n");
@@ -238,6 +266,7 @@ void execute()
                 break;
         }
 
+        //addch(*src); getch();
         *src++;
     }
 }
