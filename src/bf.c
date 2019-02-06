@@ -104,10 +104,12 @@ void execute()
 
             case '?':   // print debug info
                 printw("\n cell #%d: %d\n", mem - memory, *mem);
+                //refresh();
                 break;
 
             case '$':   // set current cell to ascii value of next char
                 *src++;
+                
                 while((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z') || *src == ' ' || *src == '&')
                 {
                     if(*src == '&') *src++;
@@ -120,6 +122,7 @@ void execute()
                     
                     *mem++ = *src++;   
                 }
+                
                 break;
 
             case '#':   // set current cell id to value of following integer
@@ -167,7 +170,7 @@ void execute()
                 break;
 
             case ':':   // print string at given cell
-                addstr(mem);
+                printw("%s", mem);
                 break;
 
             case ';': // store string at given cell
@@ -194,6 +197,69 @@ void execute()
 
                 fread(mem + 1, 1, SOURCE_SIZE, in);
                 fclose(in);
+            }
+
+            case 'A':
+            {
+                *src++;
+                int num = atoi(src);
+
+                if((*mem + num) < -128 || (*mem + num) > 127)
+                {
+                    printw("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, *mem + num);
+                    printw("\n        cell value bounds are from '-128' to '127'\n");
+                    break;
+                }
+
+                *mem += num;
+                break;
+            }
+
+            case 'S':
+            {
+                *src++;
+                int num = atoi(src);
+
+                if((*mem - num) < -128 || (*mem - num) > 127)
+                {
+                    printw("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, *mem - num);
+                    printw("\n        cell value bounds are from '-128' to '127'\n");
+                    break;
+                }
+
+                *mem -= num;
+                break;
+            }
+
+            case 'M':
+            {
+                *src++;
+                int num = atoi(src);
+
+                if((*mem * num) < -128 || (*mem * num) > 127)
+                {
+                    printw("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, *mem * num);
+                    printw("\n        cell value bounds are from '-128' to '127'\n");
+                    break;
+                }
+
+                *mem *= num;
+                break;
+            }
+
+            case 'D':
+            {
+                *src++;
+                int num = atoi(src);
+
+                if(num == NULL)
+                {
+                    printw("\n FATAL ERROR: zero division!\n");
+                    break;
+                }
+
+                *mem /= num;
+                break;
             }
             
             case '>':
