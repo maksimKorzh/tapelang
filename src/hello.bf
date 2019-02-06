@@ -1,2 +1,2 @@
-$Hello @44>  @32> $world! @0
-#0:
+$stringhere@0\
+#0:#11:

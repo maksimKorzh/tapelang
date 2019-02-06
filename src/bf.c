@@ -55,6 +55,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ncurses.h>
 #include <errno.h>
 
 #define VERSION "v0.0.2"
@@ -75,12 +77,21 @@ void execute()
         switch(*src)
         {
             case '?':   // print debug info
-                printf("\n cell #%d: %d\n", mem - memory, *mem);
+                printw("\n cell #%d: %d\n", mem - memory, *mem);
                 break;
 
             case '$':   // set current cell to ascii value of next char
                 *src++;
-                while((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z')) *mem++ = *src++;
+                while((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z'))
+                {
+                    if((mem - memory + 1) > 65535)
+                    {
+                        printw("\n ERROR: string is out of bounds!\n");
+                        break;
+                    }
+                    
+                    *mem++ = *src++;   
+                }
                 break;
 
             case '#':   // set current cell id to value of following integer
@@ -90,8 +101,8 @@ void execute()
 
                 if(num < 0 || num > 65535)
                 {
-                    printf("\n ERROR: cell #%d is out of ID bounds!", num);
-                    printf("\n        cell #id bounds are from '0' to '65535'\n");
+                    printw("\n ERROR: cell #%d is out of ID bounds!", num);
+                    printw("\n        cell #id bounds are from '0' to '65535'\n");
                     break;
                 }
                 
@@ -99,35 +110,57 @@ void execute()
                 break;
             }
             
-            case '@':
+            case '@':   // set constant value to current cell
                 *src++;
                 int num = atoi(src);
 
                 if(num < -128 || num > 127)
                 {
-                    printf("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, num);
-                    printf("\n        cell value bounds are from '-128' to '127'\n");
+                    printw("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, num);
+                    printw("\n        cell value bounds are from '-128' to '127'\n");
                     break;
                 }
 
                 *mem = atoi(src);
                 break;
 
-            case ':':
-                puts(mem);
+            case ':':   // print string at given cell
+                addstr(mem);
                 break;
 
-            /*case ';':
-                gets();
-                break;*/
+            case ';': // store string at given cell
+                getstr(mem);
+                break;
 
+            case '/':   // write to file
+            {
+                FILE *out = fopen("out.txt" , "w");
+                fwrite(mem, 1, strlen(mem),out);
+                fclose(out);
+                break;
+            }
+
+            case '\\':
+            {
+                FILE *in = fopen("out.txt", "r");
+
+                if(in == NULL)
+                {
+                    printw("\n ERROR: couldn't open file 'out.txt', no such file!\n");
+                    break;
+                }
+
+                fread(mem + 1, 1, SOURCE_SIZE, in);
+                fclose(in);
+            }
+            
             case '>':
 
                 if((mem - memory) == 65535)
                 {
-                    printf("\n WARNING: cell #%d is out of right bound!", mem - memory + 1);
+                    printw("\n WARNING: cell #%d is out of right bound!", mem - memory + 1);
                     mem = memory - 1;
-                    printf("\n          setting cell #id to '%d'\n", mem - memory + 1);
+                    printw("\n          setting cell #id to '%d'\n", mem - memory + 1);
                 }
 
                 *mem++;
@@ -137,9 +170,9 @@ void execute()
 
                 if(!(mem - memory))
                 {
-                    printf("\n WARNING: cell #%d is out of left bound!", mem - memory - 1);
+                    printw("\n WARNING: cell #%d is out of left bound!", mem - memory - 1);
                     mem = memory + MEMORY_SIZE;
-                    printf("\n          setting cell #id to '%d'\n", mem - memory - 1);
+                    printw("\n          setting cell #id to '%d'\n", mem - memory - 1);
                 }
                 
                 *mem--;
@@ -149,9 +182,9 @@ void execute()
 
                 if(*mem == 127)
                 {
-                    printf("\n WARNING: cell #%d: value '%d' is out of positive bound!", mem - memory, *mem + 1);
+                    printw("\n WARNING: cell #%d: value '%d' is out of positive bound!", mem - memory, *mem + 1);
                     *mem = -128;
-                    printf("\n          setting cell #%d value to '%d'\n", mem - memory, *mem);
+                    printw("\n          setting cell #%d value to '%d'\n", mem - memory, *mem);
                     break;
                 }
 
@@ -162,17 +195,17 @@ void execute()
 
                 if(*mem == -128)
                 {
-                    printf("\n WARNING: cell #%d: value '%d' is out of negative bound!", mem - memory, *mem - 1);
+                    printw("\n WARNING: cell #%d: value '%d' is out of negative bound!", mem - memory, *mem - 1);
                     *mem = 127;
-                    printf("\n          setting cell #%d value to '%d'\n", mem - memory, *mem);
+                    printw("\n          setting cell #%d value to '%d'\n", mem - memory, *mem);
                     break;
                 }
 
                 --*mem;
                 break;
                 
-            case '.': putc(*mem, stdout); break;
-            case ',': *mem = getc(stdin); break;
+            case '.': addch(*mem); break;
+            case ',': *mem = getch(); break;
                 
             case '[':
 
@@ -205,7 +238,6 @@ void execute()
                 break;
         }
 
-        //putchar(*src); getchar();
         *src++;
     }
 }
@@ -224,14 +256,19 @@ int main(int argc,char *argv[])
         
         if(errno)
         {
-            printf("\n   ERROR: file '%s' doesn't exist!\n", argv[1]);
+            printf("\n   ERROR: file '%s' doesn't exist!\n\n", argv[1]);
             return 0;
         }
         
         fread(source, 1, SOURCE_SIZE, file);
         fclose(file);
+        initscr();
+        noecho();
         execute();
     }
-    
+
+    addstr("\n\n Press any key to exit...\n");
+    getch();
+    endwin();
     return 0;
 }
