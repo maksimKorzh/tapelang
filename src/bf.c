@@ -266,7 +266,7 @@ void execute()
                 break;
         }
 
-        //addch(*src); getch();
+        //refresh();
         *src++;
     }
 }
@@ -292,6 +292,7 @@ int main(int argc,char *argv[])
         fread(source, 1, SOURCE_SIZE, file);
         fclose(file);
         initscr();
+        scrollok(stdscr,TRUE);
         noecho();
         execute();
     }
