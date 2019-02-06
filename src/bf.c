@@ -53,10 +53,11 @@
 ;---------------------------------------------------------------------------------;
 \*********************************************************************************/
 
-#include <stdio.h>
+#include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ncurses.h>
+#include <stdio.h>
+#include <ctype.h>
 #include <errno.h>
 
 #define VERSION "v0.0.2"
@@ -166,10 +167,10 @@ void execute()
                     break;
                 }
 
-                *mem = atoi(src);
+                *mem = num;
                 break;
 
-            case ':':   // print string at given cell
+            case '%':   // print string at given cell
                 printw("%s", mem);
                 break;
 
@@ -199,22 +200,6 @@ void execute()
                 fclose(in);
             }
 
-            case 'A':
-            {
-                *src++;
-                int num = atoi(src);
-
-                if((*mem + num) < -128 || (*mem + num) > 127)
-                {
-                    printw("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, *mem + num);
-                    printw("\n        cell value bounds are from '-128' to '127'\n");
-                    break;
-                }
-
-                *mem += num;
-                break;
-            }
-
             case 'S':
             {
                 *src++;
@@ -231,7 +216,7 @@ void execute()
                 break;
             }
 
-            case 'M':
+            case '*':
             {
                 *src++;
                 int num = atoi(src);
@@ -247,12 +232,12 @@ void execute()
                 break;
             }
 
-            case 'D':
+            case ':':
             {
                 *src++;
                 int num = atoi(src);
 
-                if(num == NULL)
+                if(num == (int)NULL)
                 {
                     printw("\n FATAL ERROR: zero division!\n");
                     break;
@@ -263,55 +248,134 @@ void execute()
             }
             
             case '>':
-
-                if((mem - memory) == 65535)
+            {
+                if(isdigit(*(src + 1)))
                 {
-                    printw("\n WARNING: cell #%d is out of right bound!", mem - memory + 1);
-                    mem = memory - 1;
-                    printw("\n          setting cell #id to '%d'\n", mem - memory + 1);
+                    *src++;                
+                    int num = atoi(src);
+        
+                    if(((mem - memory) + num) > 65535)
+                    {
+                        printw("\n ERROR: cell #%d is out of value bounds!", mem - memory + num);
+                        printw("\n        cell #ID bounds are from '0' to '65535'\n");
+                        break;
+                    }
+        
+                    mem += num;
+                    break;
                 }
 
-                *mem++;
-                break;
-
+                else
+                {
+                    if((mem - memory) == 65535)
+                    {
+                        printw("\n WARNING: cell #%d is out of right bound!", mem - memory + 1);
+                        mem = memory - 1;
+                        printw("\n          setting cell #id to '%d'\n", mem - memory + 1);
+                    }
+    
+                    *mem++;
+                    break;
+                }
+            }
+            
             case '<':
-
-                if(!(mem - memory))
+            {
+                if(isdigit(*(src + 1)))
                 {
-                    printw("\n WARNING: cell #%d is out of left bound!", mem - memory - 1);
-                    mem = memory + MEMORY_SIZE;
-                    printw("\n          setting cell #id to '%d'\n", mem - memory - 1);
+                    *src++;                
+                    int num = atoi(src);
+        
+                    if(((mem - memory) - num) < 0)
+                    {
+                        printw("\n ERROR: cell #%d is out of value bounds!", mem - memory - num);
+                        printw("\n        cell #ID bounds are from '0' to '65535'\n");
+                        break;
+                    }
+        
+                    mem -= num;
+                    break;
                 }
-                
-                *mem--;
-                break;
 
+                else
+                {
+                    if(!(mem - memory))
+                    {
+                        printw("\n WARNING: cell #%d is out of left bound!", mem - memory - 1);
+                        mem = memory + MEMORY_SIZE;
+                        printw("\n          setting cell #id to '%d'\n", mem - memory - 1);
+                    }
+                    
+                    *mem--;
+                    break;
+                }
+            }
             case '+':
-
-                if(*mem == 127)
+            {
+                if(isdigit(*(src + 1)))
                 {
-                    printw("\n WARNING: cell #%d: value '%d' is out of positive bound!", mem - memory, *mem + 1);
-                    *mem = -128;
-                    printw("\n          setting cell #%d value to '%d'\n", mem - memory, *mem);
+                    *src++;                
+                    int num = atoi(src);
+        
+                    if((*mem + num) < -128 || (*mem + num) > 127)
+                    {
+                        printw("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, *mem + num);
+                        printw("\n        cell value bounds are from '-128' to '127'\n");
+                        break;
+                    }
+        
+                    *mem += num;
                     break;
                 }
 
-                ++*mem;
-                break;
-                
+                else
+                {
+                    if(*mem == 127)
+                    {
+                        printw("\n WARNING: cell #%d: value '%d' is out of positive bound!", mem - memory, *mem + 1);
+                        *mem = -128;
+                        printw("\n          setting cell #%d value to '%d'\n", mem - memory, *mem);
+                        break;
+                    }
+                    
+                    ++*mem;                    
+                    break;
+                }
+            }
+            
             case '-':
-
-                if(*mem == -128)
+            {
+                if(isdigit(*(src + 1)))
                 {
-                    printw("\n WARNING: cell #%d: value '%d' is out of negative bound!", mem - memory, *mem - 1);
-                    *mem = 127;
-                    printw("\n          setting cell #%d value to '%d'\n", mem - memory, *mem);
+                    *src++;
+                    int num = atoi(src);
+    
+                    if((*mem - num) < -128 || (*mem - num) > 127)
+                    {
+                        printw("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, *mem - num);
+                        printw("\n        cell value bounds are from '-128' to '127'\n");
+                        break;
+                    }
+    
+                    *mem -= num;
                     break;
                 }
 
-                --*mem;
-                break;
-                
+                else
+                {
+                    if(*mem == -128)
+                    {
+                        printw("\n WARNING: cell #%d: value '%d' is out of negative bound!", mem - memory, *mem - 1);
+                        *mem = 127;
+                        printw("\n          setting cell #%d value to '%d'\n", mem - memory, *mem);
+                        break;
+                    }
+
+                    --*mem;
+                    break;
+                }
+            }
+                            
             case '.': addch(*mem); break;
             case ',': *mem = getch(); break;
                 
