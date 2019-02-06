@@ -125,6 +125,13 @@ void execute()
             case '#':   // set current cell id to value of following integer
             {
                 *src++;
+
+                if(*src == '@')
+                {
+                    mem = memory + *mem;
+                    break;
+                }
+                
                 int num = atoi(src);
 
                 if(num < 0 || num > 65535)
@@ -140,6 +147,13 @@ void execute()
             
             case '@':   // set constant value to current cell
                 *src++;
+
+                if(*src == '#')
+                {
+                    *mem = mem - memory;
+                    break;
+                }
+                
                 int num = atoi(src);
 
                 if(num < -128 || num > 127)
@@ -266,7 +280,7 @@ void execute()
                 break;
         }
 
-        //refresh();
+        refresh();
         *src++;
     }
 }
