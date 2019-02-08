@@ -93,9 +93,7 @@ I like the idea behind brainfuck, especially it's extreme minimalism, and simply
     #5 %                                    print string
     
     #6 @10                                  new line
-    
-    #100 $true >@10>@0
-    
+
     #27 +[#0,.#27@0]                        get user input and store it at cell 0
     #6.
     #0 -48                                  convert char to int at cell 0
@@ -167,6 +165,7 @@ I like the idea behind brainfuck, especially it's extreme minimalism, and simply
             dec(-)
         }
     
+        esle if(count &= 1)
         {1
             goto next(#3)
             set next(=#4)
