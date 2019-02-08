@@ -1,7 +1,0 @@
-Text editor in brainfuck
-
-<?>?
-#-10?
-#70000?
-@150?
-@-170?

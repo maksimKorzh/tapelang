@@ -1,7 +1,7 @@
 /*********************************************************************************\
 ;---------------------------------------------------------------------------------;
 ;                                                                                 ;
-;                                Brainfuck v0.0.1                                 ;
+;                                  Tapelang v0.0.3                                ;
 ;                                                                                 ;
 ;---------------------------------------------------------------------------------;
 ;---------------------------------------------------------------------------------;
@@ -60,7 +60,7 @@
 #include <ctype.h>
 #include <errno.h>
 
-#define VERSION "v0.0.2"
+#define VERSION "v0.0.3"
 #define MEMORY_SIZE 65536
 #define SOURCE_SIZE 25600
 
@@ -174,11 +174,13 @@ void execute()
                 printw("%s", mem);
                 break;
 
-            case ';': // store string at given cell
+            case ';': // store user input string at given cell
+                echo();
                 getstr(mem);
+                noecho();
                 break;
 
-            case '/':   // write to file
+            case '/':   // write to file "out.txt"
             {
                 FILE *out = fopen("out.txt" , "w");
                 fwrite(mem, 1, strlen(mem),out);
@@ -186,7 +188,7 @@ void execute()
                 break;
             }
 
-            case '\\':
+            case '\\':    // read from file "out.txt"
             {
                 FILE *in = fopen("out.txt", "r");
 
@@ -198,22 +200,6 @@ void execute()
 
                 fread(mem + 1, 1, SOURCE_SIZE, in);
                 fclose(in);
-            }
-
-            case 'S':
-            {
-                *src++;
-                int num = atoi(src);
-
-                if((*mem - num) < -128 || (*mem - num) > 127)
-                {
-                    printw("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, *mem - num);
-                    printw("\n        cell value bounds are from '-128' to '127'\n");
-                    break;
-                }
-
-                *mem -= num;
-                break;
             }
 
             case '*':
@@ -246,7 +232,38 @@ void execute()
                 *mem /= num;
                 break;
             }
-            
+
+            case '{':
+            {
+                *src++;
+                int num = atoi(src);
+                
+                if(*mem != num)
+                    while(*src != '}') *src++;
+
+                break;
+            }
+
+            case '=':
+            {
+                *src++;
+
+                if(*src == '#') *src++;
+                else break;
+                
+                int num = atoi(src);
+
+                if(num < 0 || num > 65535)
+                {
+                    printw("\n ERROR: cell #%d is out of ID bounds!", num);
+                    printw("\n        cell #id bounds are from '0' to '65535'\n");
+                    break;
+                }
+                
+                *mem = *(memory + num);                
+                break;
+            }
+                            
             case '>':
             {
                 if(isdigit(*(src + 1)))
@@ -323,9 +340,26 @@ void execute()
                         printw("\n        cell value bounds are from '-128' to '127'\n");
                         break;
                     }
-        
+                    
                     *mem += num;
                     break;
+                }
+
+                else if(*(src + 1) == '#')
+                {
+                    src += 2;               
+                    int num = atoi(src);
+        
+                    if((*mem + num) < -128 || (*mem + num) > 127)
+                    {
+                        printw("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, *mem + num);
+                        printw("\n        cell value bounds are from '-128' to '127'\n");
+                        break;
+                    }
+                    
+                    *mem += *(memory + num);
+                    break;
+                    
                 }
 
                 else
@@ -361,6 +395,24 @@ void execute()
                     break;
                 }
 
+                else if(*(src + 1) == '#')
+                {
+                    src += 2;               
+                    int num = atoi(src);
+        
+                    if((*mem + num) < -128 || (*mem + num) > 127)
+                    {
+                        printw("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, *mem + num);
+                        printw("\n        cell value bounds are from '-128' to '127'\n");
+                        break;
+                    }
+                    
+                    *mem -= *(memory + num);
+                    break;
+                    
+                }
+
+
                 else
                 {
                     if(*mem == -128)
@@ -376,7 +428,16 @@ void execute()
                 }
             }
                             
-            case '.': addch(*mem); break;
+            case '.':
+                if(*(src + 1) == '%')
+                {
+                    *src++;
+                    printw("%d", *mem);
+                    break;
+                }
+
+                addch(*mem);
+                break;
             case ',': *mem = getch(); break;
                 
             case '[':
