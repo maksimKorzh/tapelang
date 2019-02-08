@@ -14,7 +14,7 @@ for making brainfuck programming easier has arrived in addition as well.
 
 # Disclaimer
 I don't claim myself to be the inventor of something new for the ideas descibed above has been implemented many times
-before. There are some "languaes" on esolangs.org with somewhat similar functionality.So I'm doing this just because
+before. There are some "languaes" on esolangs.org with somewhat similar functionality. So I'm doing this just because
 I like the idea behind brainfuck, especially it's extreme minimalism, and simply want slightly extend them on my own.
 
 # Command set
@@ -56,13 +56,14 @@ I like the idea behind brainfuck, especially it's extreme minimalism, and simply
     /              write file "out.txt" containing string stored at the data pointer (until zero cell is encountered)
     \              read file "out.txt" and store it at the data pointer
     
-    [	             if the byte at the data pointer is zero, then instead of moving the instruction pointer forward
+    [	           if the byte at the data pointer is zero, then instead of moving the instruction pointer forward
                    to the next command, jump it forward to the command after the matching "]" command
                    
-    ]	             if the byte at the data pointer is nonzero, then instead of moving the instruction pointer forward
+    ]	           if the byte at the data pointer is nonzero, then instead of moving the instruction pointer forward
                    to the next command, jump it back to the command after the matching [ command
 
-# Build
+# Build & Run
 
     sudo apt-get install libncurses5-dev libncursesw5-dev      to install ncurses library
     gcc tapelang.c -o tl -lncurses                             to compile with GCC
+    tl hello.tl                                                to run a given file
