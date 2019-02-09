@@ -237,9 +237,18 @@ void execute()
             {
                 *src++;
                 int num = atoi(src);
-                
+                    
                 if(*mem != num)
-                    while(*src != '}') *src++;
+                {
+                    loop = 1;
+                    while(loop)
+                    {
+                        *src++;
+
+                        if(*src == '{') loop++;
+                        if(*src == '}') loop--;
+                    }
+                }
 
                 break;
             }
