@@ -98,7 +98,7 @@ void execute()
                 src_flag ^= 1;
                 break;
             }
-        
+
             case '&':   // escape character
                 *src++;
                 break;
@@ -110,20 +110,20 @@ void execute()
 
             case '$':   // set current cell to ascii value of next char
                 *src++;
-                
+
                 while((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z') || *src == ' ' || *src == '&')
                 {
                     if(*src == '&') *src++;
-                    
+
                     if((mem - memory + 1) > 65535)
                     {
                         printw("\n ERROR: string is out of bounds!\n");
                         break;
                     }
-                    
-                    *mem++ = *src++;   
+
+                    *mem++ = *src++;
                 }
-                
+
                 break;
 
             case '#':   // set current cell id to value of following integer
@@ -135,7 +135,7 @@ void execute()
                     mem = memory + *mem;
                     break;
                 }
-                
+
                 int num = atoi(src);
 
                 if(num < 0 || num > 65535)
@@ -144,11 +144,11 @@ void execute()
                     printw("\n        cell #id bounds are from '0' to '65535'\n");
                     break;
                 }
-                
+
                 mem = memory + num;
                 break;
             }
-            
+
             case '@':   // set constant value to current cell
                 *src++;
 
@@ -157,7 +157,7 @@ void execute()
                     *mem = mem - memory;
                     break;
                 }
-                
+
                 int num = atoi(src);
 
                 if(num < -128 || num > 127)
@@ -237,7 +237,7 @@ void execute()
             {
                 *src++;
                 int num = atoi(src);
-                    
+
                 if(*mem != num)
                 {
                     loop = 1;
@@ -259,7 +259,7 @@ void execute()
 
                 if(*src == '#') *src++;
                 else break;
-                
+
                 int num = atoi(src);
 
                 if(num < 0 || num > 65535)
@@ -268,25 +268,25 @@ void execute()
                     printw("\n        cell #id bounds are from '0' to '65535'\n");
                     break;
                 }
-                
-                *mem = *(memory + num);                
+
+                *mem = *(memory + num);
                 break;
             }
-                            
+
             case '>':
             {
                 if(isdigit(*(src + 1)))
                 {
-                    *src++;                
+                    *src++;
                     int num = atoi(src);
-        
+
                     if(((mem - memory) + num) > 65535)
                     {
                         printw("\n ERROR: cell #%d is out of value bounds!", mem - memory + num);
                         printw("\n        cell #ID bounds are from '0' to '65535'\n");
                         break;
                     }
-        
+
                     mem += num;
                     break;
                 }
@@ -299,26 +299,26 @@ void execute()
                         mem = memory - 1;
                         printw("\n          setting cell #id to '%d'\n", mem - memory + 1);
                     }
-    
+
                     *mem++;
                     break;
                 }
             }
-            
+
             case '<':
             {
                 if(isdigit(*(src + 1)))
                 {
-                    *src++;                
+                    *src++;
                     int num = atoi(src);
-        
+
                     if(((mem - memory) - num) < 0)
                     {
                         printw("\n ERROR: cell #%d is out of value bounds!", mem - memory - num);
                         printw("\n        cell #ID bounds are from '0' to '65535'\n");
                         break;
                     }
-        
+
                     mem -= num;
                     break;
                 }
@@ -331,7 +331,7 @@ void execute()
                         mem = memory + MEMORY_SIZE;
                         printw("\n          setting cell #id to '%d'\n", mem - memory - 1);
                     }
-                    
+
                     *mem--;
                     break;
                 }
@@ -340,35 +340,35 @@ void execute()
             {
                 if(isdigit(*(src + 1)))
                 {
-                    *src++;                
+                    *src++;
                     int num = atoi(src);
-        
+
                     if((*mem + num) < -128 || (*mem + num) > 127)
                     {
                         printw("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, *mem + num);
                         printw("\n        cell value bounds are from '-128' to '127'\n");
                         break;
                     }
-                    
+
                     *mem += num;
                     break;
                 }
 
                 else if(*(src + 1) == '#')
                 {
-                    src += 2;               
+                    src += 2;
                     int num = atoi(src);
-        
+
                     if((*mem + num) < -128 || (*mem + num) > 127)
                     {
                         printw("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, *mem + num);
                         printw("\n        cell value bounds are from '-128' to '127'\n");
                         break;
                     }
-                    
+
                     *mem += *(memory + num);
                     break;
-                    
+
                 }
 
                 else
@@ -380,45 +380,45 @@ void execute()
                         printw("\n          setting cell #%d value to '%d'\n", mem - memory, *mem);
                         break;
                     }
-                    
-                    ++*mem;                    
+
+                    ++*mem;
                     break;
                 }
             }
-            
+
             case '-':
             {
                 if(isdigit(*(src + 1)))
                 {
                     *src++;
                     int num = atoi(src);
-    
+
                     if((*mem - num) < -128 || (*mem - num) > 127)
                     {
                         printw("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, *mem - num);
                         printw("\n        cell value bounds are from '-128' to '127'\n");
                         break;
                     }
-    
+
                     *mem -= num;
                     break;
                 }
 
                 else if(*(src + 1) == '#')
                 {
-                    src += 2;               
+                    src += 2;
                     int num = atoi(src);
-        
+
                     if((*mem + num) < -128 || (*mem + num) > 127)
                     {
                         printw("\n ERROR: cell #%d value '%d' is out of value bounds!", mem - memory, *mem + num);
                         printw("\n        cell value bounds are from '-128' to '127'\n");
                         break;
                     }
-                    
+
                     *mem -= *(memory + num);
                     break;
-                    
+
                 }
 
 
@@ -436,7 +436,7 @@ void execute()
                     break;
                 }
             }
-                            
+
             case '.':
                 if(*(src + 1) == '%')
                 {
@@ -448,7 +448,7 @@ void execute()
                 addch(*mem);
                 break;
             case ',': *mem = getch(); break;
-                
+
             case '[':
 
                 if(!*mem)
@@ -471,7 +471,7 @@ void execute()
                 while(loop)
                 {
                     *src--;
-                   
+
                     if(*src == '[') loop--;
                     if(*src == ']') loop++;
                 }
@@ -496,13 +496,13 @@ int main(int argc,char *argv[])
     else if(argc == 2)
     {
         FILE *file = fopen(argv[1], "r");
-        
+
         if(errno)
         {
             printf("\n   ERROR: file '%s' doesn't exist!\n\n", argv[1]);
             return 0;
         }
-        
+
         fread(source, 1, SOURCE_SIZE, file);
         fclose(file);
         initscr();
