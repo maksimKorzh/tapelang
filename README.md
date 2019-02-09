@@ -101,8 +101,8 @@ I like the idea behind brainfuck, especially it's extreme minimalism, and simply
     [
         #4                                  go to cell 4 (count variable)
             
-            {0 #3 =#4 .% #6. #0-}           if count &= 0 next &= count
-            {1 #3 =#4 .% #6. #0-}           if count &= 1 next &= count
+            {0 #3 =#4 .% #6. }             if count &= 0 next &= count
+            {1 #3 =#4 .% #6. }             if count &= 1 next &= count
                                             
             #3 =#1 +#2 .% #6.               print next &= first &+ second
             #1 =#2                          first &= second
@@ -161,8 +161,6 @@ I like the idea behind brainfuck, especially it's extreme minimalism, and simply
             print(.%)
             goto new_line(#6)
             putchar(.)
-            goto user_input(#0)
-            dec(-)
         }
     
         esle if(count &= 1)
@@ -172,8 +170,6 @@ I like the idea behind brainfuck, especially it's extreme minimalism, and simply
             print(.%)
             goto new_line(#6)
             putchar(.)
-            goto user_input(#0)
-            dec(-)
         }
                                           
         goto next(#3)
