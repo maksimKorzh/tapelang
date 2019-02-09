@@ -17,6 +17,11 @@ I don't claim myself to be the inventor of something new for the ideas descibed 
 before. There are some "languaes" on esolangs.org with somewhat similar functionality. So I'm doing this just because
 I like the idea behind brainfuck, especially it's extreme minimalism, and simply want slightly extend them on my own.
 
+# Contributors
+
+  @maksimKorzh
+  @phunanon
+
 # Command set
 
     !              execute commands at the data pointer until encountered "!" to switch back to source file
