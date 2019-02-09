@@ -74,6 +74,17 @@ int loop;
 int src_flag;
 char *source_ptr;
 
+void DoLoop (char rise, char fall, int direction)
+{
+    loop = 1;
+    while(loop)
+    {
+        src += direction;
+        if(*src == rise) loop++;
+        if(*src == fall) loop--;
+    }
+}
+
 void execute()
 {
     while(*src)
@@ -230,26 +241,6 @@ void execute()
                 }
 
                 *mem /= num;
-                break;
-            }
-
-            case '{':
-            {
-                *src++;
-                int num = atoi(src);
-
-                if(*mem != num)
-                {
-                    loop = 1;
-                    while(loop)
-                    {
-                        *src++;
-
-                        if(*src == '{') loop++;
-                        if(*src == '}') loop--;
-                    }
-                }
-
                 break;
             }
 
@@ -449,34 +440,19 @@ void execute()
                 break;
             case ',': *mem = getch(); break;
 
+            case '{':
+                *src++;
+                if(*mem != atoi(src))
+                    DoLoop('{', '}', 1);
+                break;
+
             case '[':
-
-                if(!*mem)
-                {
-                    loop = 1;
-                    while(loop)
-                    {
-                        *src++;
-
-                        if(*src == '[') loop++;
-                        if(*src == ']') loop--;
-                    }
-                }
-
+                if(!*mem) DoLoop('[', ']', 1);
                 break;
 
             case ']':
-
-                loop = 1;
-                while(loop)
-                {
-                    *src--;
-
-                    if(*src == '[') loop--;
-                    if(*src == ']') loop++;
-                }
-
-                *src--;
+                DoLoop(']', '[', -1);
+                src--;
                 break;
         }
 
