@@ -111,7 +111,7 @@ void execute()
             }
 
             case '&':   // escape character
-                *src++;
+                src++;
                 break;
 
             case '?':   // print debug info
@@ -120,11 +120,11 @@ void execute()
                 break;
 
             case '$':   // set current cell to ascii value of next char
-                *src++;
+                src++;
 
                 while((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z') || *src == ' ' || *src == '&')
                 {
-                    if(*src == '&') *src++;
+                    if(*src == '&') src++;
 
                     if((mem - memory + 1) > 65535)
                     {
@@ -139,7 +139,7 @@ void execute()
 
             case '#':   // set current cell id to value of following integer
             {
-                *src++;
+                src++;
 
                 if(*src == '@')
                 {
@@ -161,7 +161,7 @@ void execute()
             }
 
             case '@':   // set constant value to current cell
-                *src++;
+                src++;
 
                 if(*src == '#')
                 {
@@ -215,7 +215,7 @@ void execute()
 
             case '*':
             {
-                *src++;
+                src++;
                 int num = atoi(src);
 
                 if((*mem * num) < -128 || (*mem * num) > 127)
@@ -231,10 +231,10 @@ void execute()
 
             case ':':
             {
-                *src++;
+                src++;
                 int num = atoi(src);
 
-                if(num == (int)NULL)
+                if(num == 0)
                 {
                     printw("\n FATAL ERROR: zero division!\n");
                     break;
@@ -246,7 +246,7 @@ void execute()
 
             case '=':
             {
-                *src++;
+                src++;
 
                 if(*src == '#') *src++;
                 else break;
@@ -268,7 +268,7 @@ void execute()
             {
                 if(isdigit(*(src + 1)))
                 {
-                    *src++;
+                    src++;
                     int num = atoi(src);
 
                     if(((mem - memory) + num) > 65535)
@@ -291,7 +291,7 @@ void execute()
                         printw("\n          setting cell #id to '%d'\n", mem - memory + 1);
                     }
 
-                    *mem++;
+                    mem++;
                     break;
                 }
             }
@@ -300,7 +300,7 @@ void execute()
             {
                 if(isdigit(*(src + 1)))
                 {
-                    *src++;
+                    src++;
                     int num = atoi(src);
 
                     if(((mem - memory) - num) < 0)
@@ -331,7 +331,7 @@ void execute()
             {
                 if(isdigit(*(src + 1)))
                 {
-                    *src++;
+                    src++;
                     int num = atoi(src);
 
                     if((*mem + num) < -128 || (*mem + num) > 127)
@@ -381,7 +381,7 @@ void execute()
             {
                 if(isdigit(*(src + 1)))
                 {
-                    *src++;
+                    src++;
                     int num = atoi(src);
 
                     if((*mem - num) < -128 || (*mem - num) > 127)
@@ -431,7 +431,7 @@ void execute()
             case '.':
                 if(*(src + 1) == '%')
                 {
-                    *src++;
+                    src++;
                     printw("%d", *mem);
                     break;
                 }
@@ -441,7 +441,7 @@ void execute()
             case ',': *mem = getch(); break;
 
             case '{':
-                *src++;
+                src++;
                 if(*mem != atoi(src))
                     DoLoop('{', '}', 1);
                 break;
@@ -457,7 +457,7 @@ void execute()
         }
 
         refresh();
-        *src++;
+        src++;
     }
 }
 
