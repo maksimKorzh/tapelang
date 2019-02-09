@@ -43,8 +43,6 @@ loop
         print(.%)
         goto new_line(#6)
         putchar(.)
-        goto user_input(#0)
-        dec(-)
     }
 
     {1
@@ -53,8 +51,6 @@ loop
         print(.%)
         goto new_line(#6)
         putchar(.)
-        goto user_input(#0)
-        dec(-)
     }
                                       
     goto next(#3)
