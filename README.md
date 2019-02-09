@@ -17,6 +17,25 @@ I don't claim myself to be the inventor of something new for the ideas descibed 
 before. There are some "languaes" on esolangs.org with somewhat similar functionality. So I'm doing this just because
 I like the idea behind brainfuck, especially it's extreme minimalism, and simply want slightly extend them on my own.
 
+# Contributions
+Tapelang is really beginner friendly project which perfectly fits educational purposes. Feel free to fork the repo and
+make pool requests. I want tapelang to be the community project because of it's wideness and easyness, so that even
+unexperienced programmers can easily bring something they want to the project. I'm open to any ideas at this point.
+Please use "issues" tab to ask questions. Here's a brief TODO list. You can implement a single feature and already
+make a pool request:
+
+    - {>10 code} - execute code if *mem > 10
+    - {<10 code} - execute code if *mem < 10
+    - {<=10 code} - execute code if *mem <= 10
+    - {>=10 code} - execute code if *mem >= 10
+    - change current syntax - {10 code} - execute code if *mem == 10
+      to - {=10 code} - execute code if *mem < 10
+    - {!=10 code} - execute code if *mem != 10
+    - make cell/value bounds checking as function
+
+The way I was originally doing this is as follows -
+start implementing an algorythm and add the desirable functionality
+
 # Contributors
 
   @maksimKorzh
