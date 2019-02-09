@@ -36,10 +36,17 @@ make a pool request:
 The way I was originally doing this is as follows -
 start implementing an algorythm and add the desirable functionality
 
+Another ways to contribute:
+
+    - point out a bug and open an issue
+    - write a program in tapelang
+    - make a windows port... (this would be a new branch if somebody does that ever)
+    - write a decent documentation (pdf/web/wiki)
+
 # Contributors
 
-  @maksimKorzh
-  @phunanon
+    @maksimKorzh
+    @phunanon
 
 # Command set
 
